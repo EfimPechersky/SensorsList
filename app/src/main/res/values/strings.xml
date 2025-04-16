@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">SensorsList</string>
+    <string name="discription">Система индикации датчиков устройства\nНажмите кнопку, чтобы получить список установленных сенсоров</string>
+    <string-array name="type_sensors">
+        <item>Датчики окружающей среды</item>
+        <item>Датчики положения</item>
+        <item>Датчики состояния человека</item>
+    </string-array>
+</resources>
