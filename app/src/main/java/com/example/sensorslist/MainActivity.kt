@@ -1,6 +1,8 @@
 package com.example.sensorslist
 
 import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.view.View
@@ -8,29 +10,47 @@ import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.RadioGroup
 import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import com.example.sensorslist.databinding.ActivityMainBinding
+import com.google.android.material.button.MaterialButton.OnCheckedChangeListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity :SensorEventListener, AppCompatActivity() {
     lateinit var sm: SensorManager
     lateinit var list: ListView
+    val noSensor = "датчик отсутствует"
+    var tSensor:Sensor? = null             //температура
+    var lSensor:Sensor? = null             //свет
+    var hSensor:Sensor? = null           //влажность
+    lateinit var db: ActivityMainBinding
     var sensorName = ArrayList<String>()
     fun containsAny(target: String, strings: Array<String>): Boolean {
         return strings.any { target.contains(it) }
     }
+    var choice = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         sm = getSystemService(SENSOR_SERVICE) as SensorManager
-
+        db = DataBindingUtil.setContentView(this,R.layout.activity_main)
         val array: Array<String> = resources.getStringArray(R.array.type_sensors)
         var s:Spinner =  findViewById(R.id.spinner);
         var adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array);
-
+        var rad:RadioGroup = findViewById(R.id.sensors)
+        rad.setOnCheckedChangeListener{ _, checkedId ->
+            when(checkedId){
+                R.id.light->{choice=1;db.sensorsInfo.text = "ОСВЕЩЕННОСТЬ: " + noSensor}
+                R.id.humidity->{choice=2;db.sensorsInfo.text = "ОТНОСИТЕЛЬНАЯ ВЛАЖНОСТЬ: " + noSensor}
+                R.id.temperature->{choice=3;db.sensorsInfo.text = "ТЕМПЕРАТУРА: " + noSensor}
+            }
+        }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         s.setAdapter(adapter);
         var environmentalSensors = ArrayList<String>()
@@ -82,4 +102,34 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        tSensor = sm.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE)
+        if(tSensor !=null)
+            sm.registerListener(this,tSensor,SensorManager.SENSOR_DELAY_GAME)
+        lSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT)
+        if(lSensor !=null)
+            sm.registerListener(this,lSensor,SensorManager.SENSOR_DELAY_GAME)
+        hSensor = sm.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY)
+        if(hSensor !=null)
+            sm.registerListener(this,hSensor,SensorManager.SENSOR_DELAY_GAME)
+    }
+    override fun onPause() {
+        super.onPause()
+        sm.unregisterListener(this) }
+    override fun onSensorChanged(event: SensorEvent?) {
+        var h = 0f
+        var t = 0f
+        if (tSensor == null && choice==3) db.sensorsInfo.text = "ТЕМПЕРАТУРА: " + noSensor
+        else if (event!!.sensor.type == tSensor!!.type && choice==3) {
+            t = event.values[0]; db.sensorsInfo.text = "ТЕМПЕРАТУРА: " + t   }
+        if (lSensor == null && choice==1) db.sensorsInfo.text = "ОСВЕЩЁННОСТЬ: " + noSensor
+        else if (event!!.sensor.type == lSensor!!.type && choice==1) db.sensorsInfo.text =
+            "ОСВЕЩЁННОСТЬ: " + event.values[0]
+        if (hSensor == null && choice==2) db.sensorsInfo.text = "ОТНОСИТЕЛЬНАЯ ВЛАЖНОСТЬ: " + noSensor
+        else if (event!!.sensor.type == hSensor!!.type && choice==2) {
+            h = event.values[0]; db.sensorsInfo.text = "ОТНОСИТЕЛЬНАЯ ВЛАЖНОСТЬ: " + h
+        }
+    }
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
 }

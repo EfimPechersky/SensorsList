@@ -6,7 +6,10 @@ plugins {
 android {
     namespace = "com.example.sensorslist"
     compileSdk = 35
-
+    buildFeatures{
+        dataBinding = true
+        viewBinding = true
+    }
     defaultConfig {
         applicationId = "com.example.sensorslist"
         minSdk = 26

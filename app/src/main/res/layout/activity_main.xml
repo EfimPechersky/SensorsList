@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -17,7 +18,33 @@
     <ListView
         android:id="@+id/sensorlist"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="600px"
         android:layout_margin="20px"/>
-
+    <RadioGroup
+        android:id="@+id/sensors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    <RadioButton
+        android:id="@+id/light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Датчик освещенности"/>
+    <RadioButton
+        android:id="@+id/humidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Датчик влажности"/>
+    <RadioButton
+        android:id="@+id/temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Датчик температуры"/>
+    </RadioGroup>
+    <TextView
+        android:id="@+id/sensors_info"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_height="wrap_content" />
 </LinearLayout>
+</layout>
